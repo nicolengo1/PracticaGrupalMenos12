@@ -4,7 +4,7 @@ interface
 
 const
   MAX_ARRAY = 2000;
-  MIN = 0;
+  MIN_ARRAY = 0;
 
 TYPE
 
@@ -19,12 +19,12 @@ TYPE
     apellidos:string;
     sexo:string; // hombre / mujer en minusculas
     ingreso: tIngreso;
-    codigoHistorial: string; // hasta 9 numeros y letras
+    codigoHistorial: string; // hasta 9 letras
     tieneSeguro:Boolean;
     totalFacturado:integer;
    end;
 
-   tArray = Array[MIN..MAX_ARRAY - 1] of tPaciente;// max 2000 pacientes
+   tArray = Array[MIN_ARRAY..MAX_ARRAY - 1] of tPaciente; // max 2000 pacientes
    
    tArrayPacientes = Record
     pacientes : tArray;
@@ -34,14 +34,16 @@ TYPE
 
  procedure Submenu();
  procedure Menu();
- procedure CargarDatos(arpaciente:tArray); 
- procedure AddPaciente(VAR arpaciente:tArrayPacientes; paciente:tpaciente);
- procedure MostrarPacientes(arpaciente:tArrayPacientes); 
- procedure MostrarPacientesSeguro (arpaciente:tArrayPacientes); // con seguro medico
- function MostrarTotalFacturado(arpaciente:tArrayPacientes):integer;  // devuelve el total facturado por todos los pacientes
- procedure guardar(ficha:text;arpaciente: tArrayPacientes);
+
+ procedure CargarDatos(arrPacientes:tArray); 
+ procedure AddPaciente(VAR arrPacientes:tArrayPacientes; paciente:tpaciente);
+ procedure MostrarPacientes(arrPacientes:tArrayPacientes); 
+ procedure MostrarPacientesSeguro (arrPacientes:tArrayPacientes); // con seguro medico
+ procedure MostrarTotalFacturado(arrPacientes:tArrayPacientes);  // devuelve el total facturado por todos los pacientes
+ procedure guardar(fichero:text;arrPacientes: tArrayPacientes);
 
 implementation
+
 
 procedure Submenu();
 begin
@@ -51,6 +53,7 @@ begin
   writeln('2. Agregar entrada al historial del paciente');
   writeln('3. Salir. Volver al menu principal');
 end;
+
 
 procedure Menu();
 begin
@@ -65,7 +68,8 @@ begin
   writeln('7 - Guardar y salir');
 end;
 
-procedure CargarDatos(arpaciente:tArray);
+
+procedure CargarDatos(arrPacientes:tArray);
 var
   fichero: text;
   i: integer;
@@ -93,15 +97,16 @@ begin
 end;
 
 
-procedure AddPaciente(VAR arpaciente:tArrayPacientes; pacienteNuevo:tpaciente);
+procedure AddPaciente(VAR arrPacientes:tArrayPacientes; pacienteNuevo:tpaciente);
  begin 
-    arpaciente.paciente[arapciente.tope]:= pacienteNuevo; // Cargamos los datos del nuevo paciente en la posicion del tope
-    arpaciente.tope := arpaciente.tope + 1; // Incrementamos tope
+    arrPacientes.paciente[arapciente.tope]:= pacienteNuevo; // Cargamos los datos del nuevo paciente en la posicion del tope
+    arrPacientes.tope := arrPacientes.tope + 1; // Incrementamos tope
     
     // Ordenar
  end;
 
-procedure MostrarPacientes(arpaciente: tArrayPacientes);
+
+procedure MostrarPacientes(arrPacientes: tArrayPacientes);
 var
   i:integer;
 
@@ -119,25 +124,38 @@ var
   end;
 
 begin
-  for i:= MIN to arpaciente.tope - 1 do
+  for i:= 0 to arrPacientes.tope - 1 do
   begin
-    writeln(i+1, 'Paciente ', arpaciente.pacientes[i].nombre, ' ', arpaciente.pacientes[i].apellidos,', de sexo ', arpaciente.pacientes[i].sexo,', con el codigo - ', arpaciente.pacientes[i].codigoHistorial,', ingresado en la fecha ', MostrarFechaIngreso(arpaciente.pacientes[i].ingreso), ', ', ConSeguro, ', ', arpaciente.pacientes[i].totalFacturado)
+    writeln(i+1, 'Paciente ', arrPacientes.pacientes[i].nombre, ' ', arrPacientes.pacientes[i].apellidos);
+    writeln(', de sexo ', arrPacientes.pacientes[i].sexo,', con el codigo - ', arrPacientes.pacientes[i].codigoHistorial);
+    writeln(', ingresado en la fecha ', MostrarFechaIngreso(arrPacientes.pacientes[i].ingreso), ', ', ConSeguro); 
+    writeln(', con el total facturado', arrPacientes.pacientes[i].totalFacturado)
   end;
 end;
 
-procedure MostrarPacientesSeguro (arpaciente:tArrayPacientes);
+
+procedure MostrarPacientesSeguro (arrPacientes:tArrayPacientes);
 var
   i:integer;
   banderita:boolean;
+
+  function MostrarFechaIngreso(ingreso :tIngreso):string;
+  begin
+    MostrarFechaIngreso := ingreso.dia + '/' + ingreso.mes, '/' + ingreso.anyo; // devuelve un string
+  end;
+
 begin
 existePaciente := False; //  variable para saber si hay pacientes con seguro medico
   
-  for i:= MIN to arpaciente.tope - 1 do
+  for i:= MIN_ARRAY to arrPacientes.tope - 1 do
     begin 
-      if (arpaciente.pacientes[i].tieneSeguro = true) then
+      if (arrPacientes.pacientes[i].tieneSeguro = true) then
         begin
           existePaciente := True; // Sabemos que existe al menos un paciente con seguro
-          writeln(i+1, ': ',arpaciente.pacientes[i].nombre,' ',arpaciente.pacientes[i].apellidos);   
+          writeln(i+1, 'Paciente ', arrPacientes.pacientes[i].nombre, ' ', arrPacientes.pacientes[i].apellidos);
+          writeln(', de sexo ', arrPacientes.pacientes[i].sexo,', con el codigo - ', arrPacientes.pacientes[i].codigoHistorial);
+          writeln(', ingresado en la fecha ', MostrarFechaIngreso(arrPacientes.pacientes[i].ingreso), ); 
+          writeln(', con el total facturado', arrPacientes.pacientes[i].totalFacturado)   
         end;   
     end;
     if (existePaciente = True) then
@@ -146,21 +164,21 @@ existePaciente := False; //  variable para saber si hay pacientes con seguro med
       end;
 end;
 
-function MostrarTotalFacturado(arpaciente:tArrayPacientes):integer;
+
+procedure MostrarTotalFacturado(arrPacientes:tArrayPacientes):integer;
 var
   FacturadoPaciente:integer;
 begin
-  FacturadoPaciente:= MIN;
+  FacturadoPaciente:= 0;
 
-  for i:= MIN to arpaciente.tope - 1 do
+  for i:= MIN to arrPacientes.tope - 1 do
     begin
-      FacturadoPaciente:= FacturadoPaciente + arpaciente.pacientes[i].totalFacturado;
-      MostrarTotalFacturado := FacturadoPaciente;
+      FacturadoPaciente:= FacturadoPaciente + arrPacientes.pacientes[i].totalFacturado;
     end;
 
 end;
 
-procedure guardar(var ficha:text;arpaciente: tArrayPacientes); // hay que pedir confirmación en el case para cerrar programa
+procedure guardar(var ficha:text;arrPacientes: tArrayPacientes); // hay que pedir confirmación en el case para cerrar programa
 var
 i:= integer;
 begin
@@ -174,12 +192,12 @@ else
 rewrite(ficha);
   for i:= MIN to MAX_ARRAY-1 then
   begin
-   writeln(ficha,'Nombre:', arpaciente.paciente[i].nombre); 
-   writeln(ficha,'Apllido:', arpaciente.paciente[i].apellidos);
-   writeln(ficha,'Ingreso:', arpaciente.paciente[i].ingreso); // hay que
-   writeln(ficha,'Nombre:', arpaciente.paciente[i].nombre);
-   writeln(ficha,'Nombre:', arpaciente.paciente[i].nombre);
-   writeln(ficha,'Nombre:', arpaciente.paciente[i].nombre);
+   writeln(ficha,'Nombre:', arrPacientes.paciente[i].nombre); 
+   writeln(ficha,'Apllido:', arrPacientes.paciente[i].apellidos);
+   writeln(ficha,'Ingreso:', arrPacientes.paciente[i].ingreso); // hay que
+   writeln(ficha,'Nombre:', arrPacientes.paciente[i].nombre);
+   writeln(ficha,'Nombre:', arrPacientes.paciente[i].nombre);
+   writeln(ficha,'Nombre:', arrPacientes.paciente[i].nombre);
   end;
 
  

@@ -27,11 +27,12 @@ uses
   //     tope:integer; // no lo limito
   //    end;
 var
-  opcion: integer;
+  opcion, subopcion: integer;
   pacienteNuevo: rPaciente;
   arrPacientes: tArrayPacientes;
   resp: string;
   i: integer;
+  codigo: string;
 
 begin
 
@@ -91,11 +92,15 @@ begin
           else
           begin
             case opcion of
-              3: MostrarPacientes(arrPacientes);
+              3:begin
+                MostrarPacientes(arrPacientes);
+                SubMenu();
+              end;
               4: MostrarPacientesSeguro(arrPacientes);
               5: begin
-                // pedir codigo y todo
-                // BuscarPacientePorCodigo(arrPacientes,codigo);
+                 write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
+                 readln(codigo);
+                 BuscarPacienteCodigo(arrPacientes,codigo);
               end;
               6: MostrarTotalFacturado(arrPacientes);
             end;

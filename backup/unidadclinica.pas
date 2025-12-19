@@ -41,11 +41,12 @@ procedure Submenu();
 
 procedure CargarDatos(var arrPacientes: tArrayPacientes; RUTAPACIENTES: string);
 // punto 1
-procedure AddPaciente(var arrPacientes: tArrayPacientes; pacienteNuevo: rPaciente; RUTAHISTORIALPACIENTES:string);
+procedure AddPaciente(var arrPacientes: tArrayPacientes; pacienteNuevo: rPaciente;
+  RUTAHISTORIALPACIENTES: string);
 // punto 2
 procedure MostrarPacientes(var arrPacientes: tArrayPacientes); // punto 3
 procedure MostrarPacientesSeguro(var arrPacientes: tArrayPacientes); // punto 4
-procedure BuscarPacienteNumero(var arrPacientes: tArrayPacientes;
+procedure BuscarPacienteCodigo(var arrPacientes: tArrayPacientes;
   codigo: string); // punto 5
 procedure MostrarTotalFacturado(var arrPacientes: tArrayPacientes); // punto 6
 procedure Guardar(var arrPacientes: tArrayPacientes); // punto 7
@@ -106,41 +107,38 @@ begin
     begin
       Readln(fichero, texto);
 
-      pacienteNuevo.nombre := copy(texto,0,pos(' ',texto));
-      delete(texto,0,pos(' ',texto));
+      pacienteNuevo.nombre := copy(texto, 1, pos(' ', texto) - 1);
+      Delete(texto, 1, pos(' ', texto));
 
-      pacienteNuevo.apellidos := copy(texto,0,pos('|',texto));
-      delete(texto,0,pos('|',texto));
+      pacienteNuevo.apellidos := copy(texto, 1, pos('|', texto) - 1);
+      Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.edad := strtoint(copy(texto,0,pos('|',texto)));
-      delete(texto,0,pos('|',texto));
+      pacienteNuevo.edad := StrToInt(copy(texto, 1, pos('|', texto) - 1));
+      Delete(texto, 1, pos('|', texto));
 
-      if(copy(texto,0,pos('|',texto)) = 'h') then
-        pacienteNuevo.sexo := 'h'
-      else
-        acienteNuevo.sexo := 'm';
-      delete(texto,0,pos('|',texto));
+      pacienteNuevo.sexo := copy(texto, 1, pos('|', texto) - 1);
+      Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.codigoHistorial := copy(texto,0,pos('|',texto));
-      delete(texto,0,pos('|',texto));
+      pacienteNuevo.codigoHistorial := copy(texto, 1, pos('|', texto) - 1);
+      Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.ingreso.dia := strtoint(copy(texto,0,pos('|',texto)));
-      delete(texto,0,pos('|',texto));
+      pacienteNuevo.ingreso.dia := StrToInt(copy(texto, 1, pos('|', texto) - 1));
+      Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.ingreso.mes := strtoint(copy(texto,0,pos('|',texto)));
-      delete(texto,0,pos('|',texto));
+      pacienteNuevo.ingreso.mes := StrToInt(copy(texto, 1, pos('|', texto) - 1));
+      Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.ingreso.anio := strtoint(copy(texto,0,pos('|',texto)));
-      delete(texto,0,pos('|',texto));
+      pacienteNuevo.ingreso.anio := StrToInt(copy(texto, 1, pos('|', texto) - 1));
+      Delete(texto, 1, pos('|', texto));
 
-      if (copy(texto,0,pos('|',texto)) = 'true') then
+      if (copy(texto, 1, pos('|', texto) - 1) = 'TRUE') then
         pacienteNuevo.tieneSeguro := True
       else
         pacienteNuevo.tieneSeguro := False;
 
-      delete(texto,0,pos('|',texto));
+      Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.totalFacturado := strtoint(copy(texto,0,pos('|',texto)));
+      pacienteNuevo.totalFacturado := StrToInt(texto);
 
       arrPacientes.pacientes[i] := pacienteNuevo;
 
@@ -157,13 +155,14 @@ begin
     arrPacientes.tope := i;
 
     if (i = 0) then
-        writeln('El archivo esta vacio!');
+      writeln('El archivo esta vacio!');
 
   end;
 
 end;
 
-procedure AddPaciente(var arrPacientes: tArrayPacientes; pacienteNuevo: rPaciente; RUTAHISTORIALPACIENTES:string);
+procedure AddPaciente(var arrPacientes: tArrayPacientes; pacienteNuevo: rPaciente;
+  RUTAHISTORIALPACIENTES: string);
 // punto 2
 var
   fichero: Text;
@@ -189,7 +188,7 @@ begin
   if (not DirectoryExists('.\Archivos\Pacientes')) then
     mkdir('.\Archivos\Pacientes');
 
-  Assign(fichero, RUTAHISTORIALPACIENTES + '\' + pacienteNuevo.codigoHistorial +'.txt');
+  Assign(fichero, RUTAHISTORIALPACIENTES + '\' + pacienteNuevo.codigoHistorial + '.txt');
 
   {$I-}
   rewrite(fichero);
@@ -201,12 +200,12 @@ begin
   end
   else
   begin
-    write(fichero,'test');
+    Write(fichero, 'test');
     Close(fichero);
 
   end;
 
-  for i := 0 to arrPacientes.tope -2 do
+  for i := 0 to arrPacientes.tope - 2 do
     for j := 0 to arrPacientes.tope - 2 - i do
     begin
 
@@ -236,9 +235,9 @@ var
   function ConSeguro(tieneSeguro: boolean): string;
   begin
     if (tieneSeguro = True) then
-      ConSeguro := ' con seguro medico'
+      ConSeguro := ' con seguro medico,'
     else
-      ConSeguro := ' sin seguro medico';
+      ConSeguro := ' sin seguro medico,';
   end;
 
   function QueSexo(sexo: char): string;
@@ -250,16 +249,20 @@ var
   end;
 
 begin
+  writeln('La lista de pacientes es:');
+  writeln();
   for i := 0 to arrPacientes.tope - 1 do
   begin
-    writeln(i + 1, '- Paciente ' , arrPacientes.pacientes[i].nombre, ' ',
-      arrPacientes.pacientes[i].apellidos,', de genero ', QueSexo(arrPacientes.pacientes[i].sexo));
+    writeln(i + 1, '- Paciente ', arrPacientes.pacientes[i].nombre, ' ',
+      arrPacientes.pacientes[i].apellidos, ', de genero ',
+      QueSexo(arrPacientes.pacientes[i].sexo));
     writeln('con el codigo - ',
-      arrPacientes.pacientes[i].codigoHistorial,',');
+      arrPacientes.pacientes[i].codigoHistorial, ',');
     writeln('ingresado en la fecha ', MostrarFechaIngreso(
       arrPacientes.pacientes[i].ingreso), ',',
       ConSeguro(arrPacientes.pacientes[i].tieneSeguro));
-    writeln('con el total facturado de ', arrPacientes.pacientes[i].totalFacturado, ' euros');
+    writeln('con el total facturado de ', arrPacientes.pacientes[i].totalFacturado,
+      ' euros');
     writeln();
   end;
 
@@ -329,6 +332,9 @@ var
   end;
 
 begin
+  writeln('La lista de pacientes con seguro medico es:');
+  writeln();
+
   existePaciente := False; //  variable para saber si hay pacientes con seguro medico
 
   for i := 0 to arrPacientes.tope - 1 do
@@ -336,14 +342,16 @@ begin
     if (arrPacientes.pacientes[i].tieneSeguro = True) then
     begin
       existePaciente := True; // Sabemos que existe al menos un paciente con seguro
-      writeln(i + 1, '- Paciente ' , arrPacientes.pacientes[i].nombre, ' ',
-      arrPacientes.pacientes[i].apellidos,', de genero ', QueSexo(arrPacientes.pacientes[i].sexo));
-    writeln('con el codigo - ',
-      arrPacientes.pacientes[i].codigoHistorial,',');
-    writeln('ingresado en la fecha ', MostrarFechaIngreso(
-      arrPacientes.pacientes[i].ingreso), ',');
-    writeln('con el total facturado de ', arrPacientes.pacientes[i].totalFacturado, ' euros');
-    writeln();
+      writeln(i + 1, '- Paciente ', arrPacientes.pacientes[i].nombre, ' ',
+        arrPacientes.pacientes[i].apellidos, ', de genero ',
+        QueSexo(arrPacientes.pacientes[i].sexo));
+      writeln('con el codigo - ',
+        arrPacientes.pacientes[i].codigoHistorial, ',');
+      writeln('ingresado en la fecha ', MostrarFechaIngreso(
+        arrPacientes.pacientes[i].ingreso), ',');
+      writeln('con el total facturado de ', arrPacientes.pacientes[i].totalFacturado,
+        ' euros');
+      writeln();
     end;
   end;
 
@@ -354,7 +362,7 @@ begin
   // if pacientes asegurados > 0 else con un for y el writeln de arriba para terminar mas rapido y no usar la "banderita"
 end;
 
-procedure BuscarPacienteNumero(var arrPacientes: tArrayPacientes;
+procedure BuscarPacienteCodigo(var arrPacientes: tArrayPacientes;
   codigo: string); // punto 5
 var
   i: integer;
@@ -369,9 +377,9 @@ var
   function ConSeguro(tieneSeguro: boolean): string;
   begin
     if (tieneSeguro = True) then
-      ConSeguro := ' con seguro medico'
+      ConSeguro := ' con seguro medico,'
     else
-      ConSeguro := ' sin seguro medico';
+      ConSeguro := ' sin seguro medico,';
   end;
 
   function QueSexo(sexo: char): string;
@@ -388,9 +396,9 @@ begin
 
   repeat
     if arrPacientes.pacientes[i].codigoHistorial = codigo then
-      encontrado := True;
-
-    i := i + 1;
+      encontrado := True
+    else
+      i := i + 1;
 
   until (encontrado = True) or (i = arrPacientes.tope);
 
@@ -398,14 +406,16 @@ begin
     writeln('Paciente no encontrado')
   else
   begin
-    writeln(i + 1, '- Paciente ' , arrPacientes.pacientes[i].nombre, ' ',
-      arrPacientes.pacientes[i].apellidos,', de genero ', QueSexo(arrPacientes.pacientes[i].sexo));
+    writeln(i + 1, '- Paciente ', arrPacientes.pacientes[i].nombre, ' ',
+      arrPacientes.pacientes[i].apellidos, ', de genero ',
+      QueSexo(arrPacientes.pacientes[i].sexo));
     writeln('con el codigo - ',
-      arrPacientes.pacientes[i].codigoHistorial,',');
+      arrPacientes.pacientes[i].codigoHistorial, ',');
     writeln('ingresado en la fecha ', MostrarFechaIngreso(
       arrPacientes.pacientes[i].ingreso), ',',
       ConSeguro(arrPacientes.pacientes[i].tieneSeguro));
-    writeln('con el total facturado de ', arrPacientes.pacientes[i].totalFacturado, ' euros');
+    writeln('con el total facturado de ', arrPacientes.pacientes[i].totalFacturado,
+      ' euros');
     writeln();
   end;
 
@@ -448,14 +458,14 @@ begin
   begin
     Write(fichero, arrPacientes.pacientes[i].nombre, ' ',
       arrPacientes.pacientes[i].apellidos);
-    Write(fichero, ' | ', arrPacientes.pacientes[i].edad);
-    Write(fichero, ' | ', arrPacientes.pacientes[i].sexo);
-    Write(fichero, ' | ', arrPacientes.pacientes[i].codigoHistorial);
-    Write(fichero, ' | ', arrPacientes.pacientes[i].ingreso.dia);
-    Write(fichero, ' | ', arrPacientes.pacientes[i].ingreso.mes);
-    Write(fichero, ' | ', arrPacientes.pacientes[i].ingreso.anio);
-    Write(fichero, ' | ', arrPacientes.pacientes[i].tieneSeguro);
-    Write(fichero, ' | ', arrPacientes.pacientes[i].totalFacturado);
+    Write(fichero, '|', arrPacientes.pacientes[i].edad);
+    Write(fichero, '|', arrPacientes.pacientes[i].sexo);
+    Write(fichero, '|', arrPacientes.pacientes[i].codigoHistorial);
+    Write(fichero, '|', arrPacientes.pacientes[i].ingreso.dia);
+    Write(fichero, '|', arrPacientes.pacientes[i].ingreso.mes);
+    Write(fichero, '|', arrPacientes.pacientes[i].ingreso.anio);
+    Write(fichero, '|', arrPacientes.pacientes[i].tieneSeguro);
+    Write(fichero, '|', arrPacientes.pacientes[i].totalFacturado);
     writeln(fichero);
   end;
   // Nombre apellido | edad | sexo | codigo | dia | mes | anyo | tieneSeguro | total facturado

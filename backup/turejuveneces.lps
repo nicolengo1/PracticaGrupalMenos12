@@ -8,7 +8,8 @@
       <Unit>
         <Filename Value="turejuveneces.lpr"/>
         <IsPartOfProject Value="True"/>
-        <CursorPos X="22"/>
+        <TopLine Value="73"/>
+        <CursorPos X="28" Y="88"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit>
@@ -18,8 +19,8 @@
         <UnitName Value="UnidadClinica"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="107"/>
-        <CursorPos X="34" Y="121"/>
+        <TopLine Value="104"/>
+        <CursorPos X="23" Y="114"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit>
@@ -29,7 +30,7 @@
         <UsageCount Value="10"/>
       </Unit>
     </Units>
-    <JumpHistory HistoryIndex="17">
+    <JumpHistory HistoryIndex="20">
       <Position>
         <Filename Value="turejuveneces.lpr"/>
         <Caret Column="22"/>
@@ -101,6 +102,18 @@
       <Position>
         <Filename Value="unidadclinica.pas"/>
         <Caret Line="140" Column="76" TopLine="129"/>
+      </Position>
+      <Position>
+        <Filename Value="unidadclinica.pas"/>
+        <Caret Line="121" Column="34" TopLine="107"/>
+      </Position>
+      <Position>
+        <Filename Value="turejuveneces.lpr"/>
+        <Caret Line="99" Column="31" TopLine="91"/>
+      </Position>
+      <Position>
+        <Filename Value="unidadclinica.pas"/>
+        <Caret Line="144" Column="80" TopLine="106"/>
       </Position>
     </JumpHistory>
     <RunParams>

@@ -29,6 +29,11 @@
         <Filename Value="turejuveneces.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="unidadclinica.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UnidadClinica"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -41,6 +46,11 @@
       <IncludeFiles Value="$(ProjOutDir)"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Linking>
+      <Debugging>
+        <DebugInfoType Value="dsDwarf3"/>
+      </Debugging>
+    </Linking>
   </CompilerOptions>
   <Debugging>
     <Exceptions>

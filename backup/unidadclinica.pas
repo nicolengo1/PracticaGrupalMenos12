@@ -118,7 +118,7 @@ begin
       if(copy(texto,0,pos('|',texto)) = 'h') then
         pacienteNuevo.sexo := 'h'
       else
-        pacienteNuevo.sexo := 'm';
+        acienteNuevo.sexo := 'm';
       delete(texto,0,pos('|',texto));
 
       pacienteNuevo.codigoHistorial := copy(texto,0,pos('|',texto));

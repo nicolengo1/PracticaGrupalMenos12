@@ -1,7 +1,8 @@
 program turejuveneces;
 
 uses
-  UnidadClinica;
+  UnidadClinica,
+  SysUtils;
 
   // rIngreso = Record
   //       dia: integer;
@@ -33,12 +34,19 @@ var
   resp: string;
   i: integer;
   codigo: string;
+  texto: string;
+  ficheroPacientes: Text;
 
 begin
 
   randomize();
 
   arrPacientes.tope := 0;
+
+  if (not DirectoryExists('.\Archivos')) then
+    mkdir('.\Archivos');
+
+  Assign(ficheroPacientes, RUTAPACIENTES);
 
   repeat
 
@@ -49,7 +57,7 @@ begin
     if (opcion <> 7) then
     begin
       case opcion of
-        1: CargarDatos(arrPacientes, RUTAPACIENTES);
+        1: CargarDatos(arrPacientes, ficheroPacientes);
 
         2: begin
           if (arrPacientes.tope >= MAX_ARRAY) then
@@ -64,7 +72,8 @@ begin
             readln(pacienteNuevo.edad);
             Write('Escriba el genero del paciente ( hombre como h y mujer como m ) -> ');
             readln(pacienteNuevo.sexo);
-            Write('Escriba la fecha de ingreso del paciente siguiendo este formato: "dia mes anio". Importante poner espacios entre cada campo -> ');
+            Write(
+              'Escriba la fecha de ingreso del paciente siguiendo este formato: "dia mes anio". Importante poner espacios entre cada campo -> ');
             Read(pacienteNuevo.ingreso.dia);
             Read(pacienteNuevo.ingreso.mes);
             readln(pacienteNuevo.ingreso.anio);
@@ -92,17 +101,49 @@ begin
           else
           begin
             case opcion of
-              3:begin
+              3: begin
                 MostrarPacientes(arrPacientes);
-                SubMenu();
+
+                repeat
+                  SubMenu();
+
+                  readln(subopcion);
+
+                  case subopcion of
+                    1: begin
+                      Write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
+                      readln(codigo);
+                      MostrarHistorialClinico(codigo,
+                        RUTAHISTORIALPACIENTES);
+                    end;
+                    2: begin
+                      Write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
+                      readln(codigo);
+
+                      Write('Escriba el texto que quiere aniadir al historial -> ');
+                      readln(texto);
+
+                      EscribirHistorialClinico(codigo, texto, RUTAHISTORIALPACIENTES);
+
+                    end;
+                    3: writeln('Volviendo al menu principal...');
+
+                    else
+                      writeln('Opcion incorrecta!');
+                  end;
+
+                  writeln();
+                until subopcion = 3;
+
               end;
               4: MostrarPacientesSeguro(arrPacientes);
               5: begin
-                 write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
-                 readln(codigo);
-                 BuscarPacienteCodigo(arrPacientes,codigo);
+                Write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
+                readln(codigo);
+                BuscarPacienteCodigo(arrPacientes, codigo);
               end;
-              6: MostrarTotalFacturado(arrPacientes);
+              6: writeln('El total facturado de esta clinica es: ',
+                  MostrarTotalFacturado(arrPacientes), ' Euros');
             end;
           end;
         end
@@ -116,7 +157,7 @@ begin
     begin
       writeln('Saliendo...');
       writeln('Gracias por usar este programa!');
-      Guardar(arrPacientes);
+      Guardar(arrPacientes, ficheroPacientes);
     end;
 
     writeln();

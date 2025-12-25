@@ -39,7 +39,12 @@ type
 procedure Menu();
 procedure Submenu();
 
-procedure CargarDatos(var arrPacientes: tArrayPacientes; RUTAPACIENTES: string);
+procedure MostrarHistorialClinico(codigo: string; RUTAHISTORIALPACIENTES: string);
+
+procedure EscribirHistorialClinico(codigo, texto: string;
+  RUTAHISTORIALPACIENTES: string);
+
+procedure CargarDatos(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
 // punto 1
 procedure AddPaciente(var arrPacientes: tArrayPacientes; pacienteNuevo: rPaciente;
   RUTAHISTORIALPACIENTES: string);
@@ -48,8 +53,9 @@ procedure MostrarPacientes(var arrPacientes: tArrayPacientes); // punto 3
 procedure MostrarPacientesSeguro(var arrPacientes: tArrayPacientes); // punto 4
 procedure BuscarPacienteCodigo(var arrPacientes: tArrayPacientes;
   codigo: string); // punto 5
-procedure MostrarTotalFacturado(var arrPacientes: tArrayPacientes); // punto 6
-procedure Guardar(var arrPacientes: tArrayPacientes); // punto 7
+function MostrarTotalFacturado(var arrPacientes: tArrayPacientes): integer; // punto 6
+procedure Guardar(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
+// punto 7
 
 // pongo VAR en cada array porque pueden llegar a ser bastante grandes y asi no se copia todo el array ( eficiente con la memoria )
 
@@ -77,22 +83,72 @@ begin
   writeln('3. Volver atras.');
 end;
 
-procedure CargarDatos(var arrPacientes: tArrayPacientes; RUTAPACIENTES: string);
-// punto 1
+procedure MostrarHistorialClinico(codigo, RUTAHISTORIALPACIENTES: string);
 var
   fichero: Text;
+  texto: string;
+begin
+  Assign(fichero, RUTAHISTORIALPACIENTES + '\' + codigo + '.txt');
+  // como pueden ser muchos archivos no puedo hacer esto en el programa principal, como con el otro archivo
+
+  {$I-}
+  reset(fichero);
+  {$I+}
+
+  if (IORESULT <> 0) then
+  begin
+    writeln('Tal paciente no existe! ( Algun error ha pasado )');
+    // puede que nop exista el paciente o el archivo ( esperemos que el paciente )
+  end
+  else
+  begin
+    while (not EOF(fichero)) do
+    begin
+      readln(fichero, texto);
+      writeln(texto);
+    end;
+
+    Close(fichero);
+  end;
+
+end;
+
+procedure EscribirHistorialClinico(codigo, texto: string;
+  RUTAHISTORIALPACIENTES: string);
+var
+  fichero: Text;
+begin
+  Assign(fichero, RUTAHISTORIALPACIENTES + '\' + codigo + '.txt');
+
+  {$I-}
+  append(fichero);
+  {$I+}
+
+  if (IORESULT <> 0) then
+  begin
+    writeln('Tal paciente no existe! ( Algun error ha pasado )');
+  end
+  else
+  begin
+    writeln(fichero, texto);
+
+    Close(fichero);
+
+    writeln('Texto escrito en el historial!');
+  end;
+
+end;
+
+procedure CargarDatos(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
+// punto 1
+var
   i: integer;
   pacienteNuevo: rPaciente;
   texto: string;
 begin
 
-  if (not DirectoryExists('.\Archivos')) then
-    mkdir('.\Archivos');
-
-  Assign(fichero, RUTAPACIENTES);
-
   {$I-}
-  reset(fichero);
+  reset(ficheroPacientes);
   {$I+}
 
   if (IORESULT <> 0) then
@@ -103,38 +159,38 @@ begin
   begin
     i := 0;
 
-    while (i < 2000) and (not EOF(fichero)) do
+    while (i < 2000) and (not EOF(ficheroPacientes)) do
     begin
-      Readln(fichero, texto);
+      Readln(ficheroPacientes, texto);
 
-      pacienteNuevo.nombre := copy(texto, 1, pos(' ', texto)-1);
+      pacienteNuevo.nombre := copy(texto, 1, pos(' ', texto) - 1);
       Delete(texto, 1, pos(' ', texto));
 
-      pacienteNuevo.apellidos := copy(texto, 1, pos('|', texto)-1);
+      pacienteNuevo.apellidos := copy(texto, 1, pos('|', texto) - 1);
       Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.edad := StrToInt(copy(texto, 1, pos('|', texto)-1));
+      pacienteNuevo.edad := StrToInt(copy(texto, 1, pos('|', texto) - 1));
       Delete(texto, 1, pos('|', texto));
 
-      if (copy(texto, 1, pos('|', texto)-1) = 'h') then
+      if (copy(texto, 1, pos('|', texto) - 1) = 'h') then
         pacienteNuevo.sexo := 'h'
       else
         pacienteNuevo.sexo := 'm';
       Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.codigoHistorial := copy(texto, 1, pos('|', texto)-1);
+      pacienteNuevo.codigoHistorial := copy(texto, 1, pos('|', texto) - 1);
       Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.ingreso.dia := StrToInt(copy(texto, 1, pos('|', texto)-1));
+      pacienteNuevo.ingreso.dia := StrToInt(copy(texto, 1, pos('|', texto) - 1));
       Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.ingreso.mes := StrToInt(copy(texto, 1, pos('|', texto)-1));
+      pacienteNuevo.ingreso.mes := StrToInt(copy(texto, 1, pos('|', texto) - 1));
       Delete(texto, 1, pos('|', texto));
 
-      pacienteNuevo.ingreso.anio := StrToInt(copy(texto, 1, pos('|', texto)-1));
+      pacienteNuevo.ingreso.anio := StrToInt(copy(texto, 1, pos('|', texto) - 1));
       Delete(texto, 1, pos('|', texto));
 
-      if (copy(texto, 1, pos('|', texto)-1) = 'TRUE') then
+      if (copy(texto, 1, pos('|', texto) - 1) = 'TRUE') then
         pacienteNuevo.tieneSeguro := True
       else
         pacienteNuevo.tieneSeguro := False;
@@ -145,20 +201,23 @@ begin
 
       arrPacientes.pacientes[i] := pacienteNuevo;
 
+      // tremendo conazo con esto pero se hizo
+
       i := i + 1;
 
     end;
-    // end of file o como se llame y until i = 1999 si eso
 
-    if (i = 2000) and not EOF(fichero) then
+    if (i = 2000) and not EOF(ficheroPacientes) then
       writeln('Se ha alcanzado el tope del array, el resto de datos no se han cargado!');
 
-    Close(fichero);
+    Close(ficheroPacientes);
 
     arrPacientes.tope := i;
 
     if (i = 0) then
       writeln('El archivo esta vacio!');
+
+    writeln('Pacientes cargados!');
 
   end;
 
@@ -182,8 +241,8 @@ var
 
 begin
   arrPacientes.pacientes[arrPacientes.tope] := pacienteNuevo;
-  // Cargamos los datos del nuevo paciente en la posicion del tope
-  arrPacientes.tope := arrPacientes.tope + 1; // Incrementamos tope
+
+  arrPacientes.tope := arrPacientes.tope + 1;
 
   if (not DirectoryExists('.\Archivos')) then
     mkdir('.\Archivos');
@@ -203,9 +262,7 @@ begin
   end
   else
   begin
-    Write(fichero, 'test');
     Close(fichero);
-
   end;
 
   for i := 0 to arrPacientes.tope - 2 do
@@ -222,6 +279,8 @@ begin
       end;
 
     end;
+
+  writeln('Paciente creado exitosamente!');
 
 end;
 
@@ -254,63 +313,24 @@ var
 begin
   writeln('La lista de pacientes es:');
   writeln();
+
   for i := 0 to arrPacientes.tope - 1 do
   begin
     writeln(i + 1, '- Paciente ', arrPacientes.pacientes[i].nombre, ' ',
       arrPacientes.pacientes[i].apellidos, ', de genero ',
       QueSexo(arrPacientes.pacientes[i].sexo));
+
     writeln('con el codigo - ',
       arrPacientes.pacientes[i].codigoHistorial, ',');
+
     writeln('ingresado en la fecha ', MostrarFechaIngreso(
       arrPacientes.pacientes[i].ingreso), ',',
       ConSeguro(arrPacientes.pacientes[i].tieneSeguro));
+
     writeln('con el total facturado de ', arrPacientes.pacientes[i].totalFacturado,
       ' euros');
+
     writeln();
-  end;
-
-end;
-
-procedure VerHistorial(var arrPacientes: tArrayPacientes; codigo: string); // punto 3
-var
-  fichero: Text;
-  frase: string;
-begin
-  Assign(fichero, RUTAHISTORIALPACIENTES + codigo + '.txt');
-
-  {$I-}
-  reset(fichero);
-  {$I+}
-
-  if IORESULT <> 0 then
-    writeln('Fichero o paciente no encontrado')
-  else
-    while (not EOF(fichero)) do
-    begin
-      Readln(fichero, frase);
-      Writeln(frase);
-    end;
-
-  Close(fichero);
-end;
-
-procedure AddHistorial(var arrPacientes: tArrayPacientes; codigo, texto: string);
-var
-  fichero: Text;
-  dia, diaMes, anyo, diaSemana: word;
-begin
-  Assign(fichero, RUTAHISTORIALPACIENTES + codigo + '.txt');
-  {$I-}
-  append(fichero);
-  {$I+}
-
-  if IORESULT <> 0 then
-    writeln('Fichero o paciente no encontrado')
-  else
-  begin
-    getDate(anyo, diaMes, diaMes, diaSemana);
-    writeln(fichero, dia, '/', diaMes, '/', anyo, ' - ', texto);
-    Close(fichero);
   end;
 
 end;
@@ -345,15 +365,20 @@ begin
     if (arrPacientes.pacientes[i].tieneSeguro = True) then
     begin
       existePaciente := True; // Sabemos que existe al menos un paciente con seguro
-      writeln(i + 1, '- Paciente ', arrPacientes.pacientes[i].nombre, ' ',
+
+      writeln('Paciente ', arrPacientes.pacientes[i].nombre, ' ',
         arrPacientes.pacientes[i].apellidos, ', de genero ',
         QueSexo(arrPacientes.pacientes[i].sexo));
+
       writeln('con el codigo - ',
         arrPacientes.pacientes[i].codigoHistorial, ',');
+
       writeln('ingresado en la fecha ', MostrarFechaIngreso(
         arrPacientes.pacientes[i].ingreso), ',');
+
       writeln('con el total facturado de ', arrPacientes.pacientes[i].totalFacturado,
         ' euros');
+
       writeln();
     end;
   end;
@@ -406,26 +431,30 @@ begin
   until (encontrado = True) or (i = arrPacientes.tope);
 
   if encontrado = False then
-    writeln('Paciente no encontrado')
+    writeln('Paciente no encontrado!')
   else
   begin
-    writeln(i + 1, '- Paciente ', arrPacientes.pacientes[i].nombre, ' ',
+    writeln('Paciente ', arrPacientes.pacientes[i].nombre, ' ',
       arrPacientes.pacientes[i].apellidos, ', de genero ',
       QueSexo(arrPacientes.pacientes[i].sexo));
+
     writeln('con el codigo - ',
       arrPacientes.pacientes[i].codigoHistorial, ',');
+
     writeln('ingresado en la fecha ', MostrarFechaIngreso(
       arrPacientes.pacientes[i].ingreso), ',',
       ConSeguro(arrPacientes.pacientes[i].tieneSeguro));
+
     writeln('con el total facturado de ', arrPacientes.pacientes[i].totalFacturado,
       ' euros');
+
     writeln();
   end;
 
 end;
 
 
-procedure MostrarTotalFacturado(var arrPacientes: tArrayPacientes); // punto 6
+function MostrarTotalFacturado(var arrPacientes: tArrayPacientes): integer; // punto 6
 var
   i, facturadoPaciente: integer;
 begin
@@ -436,47 +465,91 @@ begin
     facturadoPaciente := facturadoPaciente + arrPacientes.pacientes[i].totalFacturado;
   end;
 
-  writeln('El total facturado de esta clinica es: ', facturadoPaciente);
+  MostrarTotalFacturado := facturadoPaciente;
 
 end;
 
-procedure Guardar(var arrPacientes: tArrayPacientes); // punto 7
+procedure Guardar(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
+// punto 7
 var
   i: integer;
-  fichero: Text;
 begin
 
-  if (not DirectoryExists('.\Archivos')) then
-    mkdir('.\Archivos');
-
-  Assign(fichero, RUTAPACIENTES);
   {$-}
-  rewrite(fichero);
+  rewrite(ficheroPacientes);
   {$+}
   if IORESULT <> 0 then
     writeln('No existe el archivo')
   else
-    rewrite(fichero);
+    rewrite(ficheroPacientes);
   for i := 0 to arrPacientes.tope - 1 do
   begin
-    Write(fichero, arrPacientes.pacientes[i].nombre, ' ',
-      arrPacientes.pacientes[i].apellidos);
-    Write(fichero, '|', arrPacientes.pacientes[i].edad);
-    Write(fichero, '|', arrPacientes.pacientes[i].sexo);
-    Write(fichero, '|', arrPacientes.pacientes[i].codigoHistorial);
-    Write(fichero, '|', arrPacientes.pacientes[i].ingreso.dia);
-    Write(fichero, '|', arrPacientes.pacientes[i].ingreso.mes);
-    Write(fichero, '|', arrPacientes.pacientes[i].ingreso.anio);
-    Write(fichero, '|', arrPacientes.pacientes[i].tieneSeguro);
-    Write(fichero, '|', arrPacientes.pacientes[i].totalFacturado);
-    writeln(fichero);
-  end;
-  // Nombre apellido | edad | sexo | codigo | dia | mes | anyo | tieneSeguro | total facturado
-  // Ejemplos:
-  // María Gómez|22|F|HCRRTQAET|15|5|2024|TRUE|243.50
-  // Juan Pérez|32|M|MAAEWAJZW|15|5|2025|TRUE|2434.50
 
-  Close(fichero);
+    Write(ficheroPacientes, arrPacientes.pacientes[i].nombre, ' ',
+      arrPacientes.pacientes[i].apellidos);
+    Write(ficheroPacientes, '|', arrPacientes.pacientes[i].edad);
+    Write(ficheroPacientes, '|', arrPacientes.pacientes[i].sexo);
+    Write(ficheroPacientes, '|', arrPacientes.pacientes[i].codigoHistorial);
+    Write(ficheroPacientes, '|', arrPacientes.pacientes[i].ingreso.dia);
+    Write(ficheroPacientes, '|', arrPacientes.pacientes[i].ingreso.mes);
+    Write(ficheroPacientes, '|', arrPacientes.pacientes[i].ingreso.anio);
+    Write(ficheroPacientes, '|', arrPacientes.pacientes[i].tieneSeguro);
+    Write(ficheroPacientes, '|', arrPacientes.pacientes[i].totalFacturado);
+    writeln(ficheroPacientes);
+  end;
+
+  Close(ficheroPacientes);
 end;
 
 end.
+{
+ Gato
+
+:::::::..:.::.::..  ..:;:.:;;:::::++:+++xxxXXx+++xXXXXx;+xXX$&$$$$XXX$&&&&&&&&$XXX$&&&&&&&$x++;++&
+....::;;::..::.:;::...:;;;+xxx+;;+x+:;+$&&$Xx++xx+++xX&$xxxxxX$$&&XxxxxXXXX$&&&&&$XXXXxXXx+;;+x+;&
+......:;+;;;::::+xxxxxX$$X$$$X+++xx++x$&&&$XXx++++++++$&$x++xX$$$Xx;;;:::::;;+xxx+;.::::...:+++:;&
+::;;;;;;++xX$&&&&&&&&&&&$xx+xx+;++++xX$$XXXXXx+++;+++++XXx;;;+xxXXx+;;::::::::::;;;:.::;::::..:++&
+&&&&&&&$$&&&&&&&&$$&&&$x;;;;+Xx++x+xX$$Xxxxxx+++;::;;;;;+x+;::;;+XXXx+++;::....:::::::..:::;++xx+&
+&&&&&&&&&&&$Xxxxx++++xXx++++xX$$$$$$$Xxxxxx+;;::::;:;;;;;+++;:::;xXXx++xx+;:...:::::::::.;++++++;&
+;+xX$$&&&Xx+;;;;++++;;xXx++xx$&&&&&$x+++++++;;;;:::::::;;;;;;;;;;++xxx++++;;:..::.::........:;;::$
++++;:::::::;;;:::;;;;;;+Xx+++xX$$$$XXx+++;;;;;;;;::::::;;;::::::;++xxxx++++;;::;;:.:..::.:::;;;..X
+$$Xx;;::.:.::;;;;;;;;;;:;++;:;;+xxxxxx+;;;:;;+;;;;::;;;:;;;;;::.:;+xx++;;++;;;;;;;::;::::::++;:::X
+&$Xx;:::.:;;;+++++;::::...:::;;+++++++;;;:::;++;++++++;::;;++;;::;;+++;;:;;+++++++++xx+::;++:.:::$
++XXx+::;:::;::::::.....:.:.:;;;;;:;;;;;;;::;;;;;;++;;;;;;;:;;;;;;::::;+;;;;++xxxxXXxxXXX;::.....:$
+X$X++;;::;:...::.......::::;;;;;::::::::::::::::::::::::;;;::;;;;:..:;+;:::;;;;+xxxxxXX$$X+:....:$
+&&$XXx++;;. ..::.......;++;;:;;;::::::::::........:::::::::::::;;;::::;+;:..:::;;;;;+++x$&&$x;:+X&
+&$x+++;;;:.....:..:;+++++x+;::;;::::...:.:......::::::::...:::::::::::;+++::::::::::;;;+xX$$XxxxxX
+Xx++;;:.....::;:::;+xXXx++++;;:::....:...:::::::::::::..:::..::::::::::;+x;::::::::;+++++++xXX$XXX
+&x;;;:.........::;;;;;;;;;;;;;:::....:::::;;;::.......:::::.....::::::::;++::::::;++++++++;+x$&&&&
+&&X+:...........:;++;:::;;;;::::.....:::::::::::..........:.............:;+;+++++++;:::;;;;;;;+xX&
+&&$x:.........:;+++;;::....:::::....:;;;:....................:..........:;+xx++++;:::::;;;++++xxX&
+&&&x;.......::;+++;::.......::;;;;;;;;;::...        ........:::..........:::..::;;;+xX$&&$X+;;+xx&
+&&Xx:.......:;;;;:::........::::;;++++;::...             ...:::..:.......:+X&&&&&&&&&&&&&$x+;+X&&&
+&Xx+:.......:;;;:.......::::::::::.........           ....  .::.......:;+X&&&&&&&&&$x::+X$$x+xX$X$
+$x+;:.......:;:::.:;+xxX$&&&&&:x&&&&$$Xx+;:....      ........:::::..::;+$&&x::;X&&&&&&&&&&$x+x$&$$
+$x+;::......:::;::;+x$&&&&&&&&&&&&&&&&&&&&x;:....  ........:;+;;;;;:.;+x$X:x&&&&&&&&&&$Xx++++x$&$&
+X++;;::.....:::::::;++++xxXX+$&$:;::::;X&&&X;:......::::;;+xxxx++xXXx;xX+:x$$$$$x+;:;::::;;++xX&&&
+x++;;;;:...:;;;;;++X$&&&&&&&&&&&&&&&&&&x:;$$X+::..:;;;;;++xxxxxxXXX$$Xx++X$X+++;;;::::::::;;++X$&&
+Xx++;+++:...:;+;::::;++xX$&&&&&&&&&&&&&$Xx+++x+::;;;;;;;;;;;:::;++xxXX+.+xx+;;:..:::::..:;+++xX&&&
+&&&Xx++x+:.:;;++:::::::;;++++++++++++xxX$&$X+:;::;:::::::::::::;;;::;++++;:::::...::....:;++xX$&&&
+$&&&&x++x+::;;+;::::..:::::::......:::;++++++;:...:.....:::::::;+x+;.:;+x+;::::....:..::;+xxX$&&&&
+;+x$$x+;+++;:;+;::::...................:::::::::.:::.....::...::;+++:.:;++;:::::::::.:;;+xxxX$&&$X
+;;+X$Xx++++;;;;;::::......................::::::..:::::::::.....::;+;:.;++;::::::::::;+xXXXX$$$X+x
+:;+X&&&$xxx+++++;;;;;;::.........    ........::..::;;;:::::.::....;;+;:+x+;:.:::..::+x$$&&&$$Xx;;x
+..:;+X$$XXx+;;+xx++;;;;;:.....         .......::::;++;::.........:;+++;xXx;.......:;x$&&&&$XXXx++x
+...:;+X$$Xx+::;;++++;;;;;;:........     .......:;;+++++;;:.......:;+++;$&x;;;::...:x$&&&&&&&&&$x++
+::..:;+X&&$x;::::;+++++;;;;;:::::...         ..:;+xx++x+;:........;++x:$&$;:::::..:x$&&$;::;;;+xxX
+;::::;++x$&X+:...::;++x++xxxx++;;:::.......  ...;xxx+;;++;:.   ..:+x+;x&&X;...::..:+$&&&x:;;:....x
+:...;+;;+x$&$+:...:..:+xxXX$&&$Xx+;;;;:::.......;xX$$x+.;++:....:+Xx.X&&&+:....:..:;x$&&&XX$$$$$$X
+;++++;::;x$&&&&&&Xx++;;;;;;+++xx+;::.::::.......:;x$&&$x;:;;:;;;+x+:$&&X+:.....::..:+X$&&$+::::;;;
+...:;+xX&&&&&&&&&&&&$x+;;:....:;+;:.....:........::;xxxXx+.:;+;;;:;$&X+:....::.:::;;+X$&&$$XXx+;:;
+XXX$$$XXXxxxxX$&Xx+xxxxx+;...:;;+;:::::::;:::......:;;++++;:;;;:.:x$X;:........:;;;;xX&&&+:::;++xx
+......   ..::+xXx+;;;;::;+xx+;;+++;::...::::::......:;;;;++;;;::;+x+;:::::::..:;+++x&&&&$xx+;:..:x
+:.       ..:;xX$&$X+;:..:++++;;xxx+;:.....:::::...:::;;;;;+++;:;;;;+x+;;;;;;;;;+xxX&&&&&x::::++x+x
+:.      .:+$&&&&$;:;;:....::::+X$$Xx+;;;;;;;;;;;:;;;;+++++xxXxxx++;;++++++++++xxX$&&&&X+;::::::.:+
+:: ...:+$&&&Xx++x+;::::::::.:;;+X$&&$X++;;;;;;;;;;++++++;;+x+::++;::;+X$$$XXX$&&&&&&$+;;:.....:;;;
+::.:+X$Xx;:+xx+;:;;:.:::....::;:::x&&&&$Xx++++;+xXX$$$Xx++;;xX+:;x$&&&&&&&&&&&&&&&X;;:.:;;....:.;x
+;++x+::;xx+;xXX+;::.:;;:..::;;xXXx;.;x$&&&&$$$$&&&&&&&XXxx;.;;;..;xX$&$$&&&&&&$x;..:;+:.:;:..;:;+x
++;.:+xx;:X$X+;;;;:::.:::::..:+++++x+;:.;+X$$$$$&$x;:.::::.:::+::;xX$$x::xxxx;::;+++;:x$+.:x+.::x+;
+
+}

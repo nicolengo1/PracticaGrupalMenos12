@@ -82,47 +82,16 @@ begin
           else
           begin
             case opcion of
-              3: begin
-                MostrarPacientes(arrPacientes);
+              3: MostrarPacientes(arrPacientes);
 
-                repeat
-                  SubMenu();
-
-                  readln(subopcion);
-
-                  case subopcion of
-                    1: begin
-                      Write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
-                      readln(codigo);
-                      MostrarHistorialClinico(codigo,
-                        RUTA_HISTORIAL_PACIENTES);
-                    end;
-                    2: begin
-                      Write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
-                      readln(codigo);
-
-                      Write('Escriba el texto que quiere aniadir al historial -> ');
-                      readln(texto);
-
-                      EscribirHistorialClinico(codigo, texto, RUTA_HISTORIAL_PACIENTES);
-
-                    end;
-                    3: writeln('Volviendo al menu principal...');
-
-                    else
-                      writeln('Opcion incorrecta!');
-                  end;
-
-                  writeln();
-                until subopcion = 3;
-
-              end;
               4: MostrarPacientesSeguro(arrPacientes);
+
               5: begin
                 Write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
                 readln(codigo);
                 BuscarPacienteCodigo(arrPacientes, codigo);
               end;
+
               6: writeln('El total facturado de esta clinica es: ',
                   MostrarTotalFacturado(arrPacientes), ' Euros');
             end;

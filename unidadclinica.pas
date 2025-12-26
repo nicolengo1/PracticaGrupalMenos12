@@ -30,7 +30,7 @@ type
 
   tTopeArray = 0..MAX_ARRAY;
 
-  tArray = array[0..MAX_ARRAY-1] of rPaciente; // max 2000 pacientes
+  tArray = array[0..MAX_ARRAY - 1] of rPaciente; // max 2000 pacientes
 
   tArrayPacientes = record
     pacientes: tArray;
@@ -55,8 +55,7 @@ procedure MostrarPacientes(var arrPacientes: tArrayPacientes);
 // punto 3
 procedure MostrarPacientesSeguro(var arrPacientes: tArrayPacientes);
 // punto 4
-procedure BuscarPacienteCodigo(var arrPacientes: tArrayPacientes;
-  codigo: string);
+procedure BuscarPacienteCodigo(var arrPacientes: tArrayPacientes; codigo: string);
 // punto 5
 function MostrarTotalFacturado(var arrPacientes: tArrayPacientes): integer;
 // punto 6
@@ -81,12 +80,46 @@ begin
 end;
 
 procedure Submenu(); // para el punto 3
+var
+  subopcion:byte;
+  codigo:string;
+  texto: string;
 begin
+  repeat
+
   writeln('Que deseas hacer ahora? Elija una opcion: ');
   writeln('-------------------------');
   writeln('1. Ver historial clinico de un paciente');
   writeln('2. Agregar entrada al historial del paciente');
   writeln('3. Volver atras.');
+
+  readln(subopcion);
+
+    case subopcion of
+      1: begin
+        Write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
+        readln(codigo);
+        MostrarHistorialClinico(codigo,
+          RUTA_HISTORIAL_PACIENTES);
+      end;
+      2: begin
+        Write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
+        readln(codigo);
+
+        Write('Escriba el texto que quiere aniadir al historial -> ');
+        readln(texto);
+
+        EscribirHistorialClinico(codigo, texto, RUTA_HISTORIAL_PACIENTES);
+
+      end;
+      3: writeln('Volviendo al menu principal...');
+
+      else
+        writeln('Opcion incorrecta!');
+    end;
+
+    writeln();
+  until subopcion = 3;
 end;
 
 procedure MostrarHistorialClinico(codigo, RUTAHISTORIALPACIENTES: string);
@@ -332,6 +365,8 @@ begin
 
     writeln();
   end;
+
+  SubMenu();
 
 end;
 

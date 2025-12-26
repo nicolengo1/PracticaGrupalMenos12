@@ -4,29 +4,6 @@ uses
   UnidadClinica,
   SysUtils;
 
-  // rIngreso = Record
-  //       dia: integer;
-  //       mes: integer;
-  //       anio: integer;
-  //     end;
-
-  //    rPaciente = Record
-  //     nombre:string;
-  //     apellidos:string;
-  //     edad:integer; // se puede limitar
-  //     sexo:char; // caracter h / m de hombre o mujer
-  //     ingreso: rIngreso;
-  //     codigoHistorial: string; // 9 letras aleatorias
-  //     tieneSeguro:Boolean;
-  //     totalFacturado:integer;
-  //    end;
-
-  //    tArray = Array[0..MAX_ARRAY - 1] of rPaciente; // max 2000 pacientes
-
-  //    tArrayPacientes = Record
-  //     pacientes : tArray;
-  //     tope:integer; // no lo limito
-  //    end;
 var
   opcion, subopcion: integer;
   pacienteNuevo: rPaciente;
@@ -37,6 +14,7 @@ var
   texto: string;
   ficheroPacientes: Text;
 
+
 begin
 
   randomize();
@@ -46,7 +24,10 @@ begin
   if (not DirectoryExists('.\Archivos')) then
     mkdir('.\Archivos');
 
-  Assign(ficheroPacientes, RUTAPACIENTES);
+  if (not DirectoryExists('.\Archivos\Pacientes')) then
+    mkdir('.\Archivos\Pacientes');
+
+  Assign(ficheroPacientes, RUTA_PACIENTES);
 
   repeat
 
@@ -92,7 +73,7 @@ begin
               pacienteNuevo.codigoHistorial :=
                 pacienteNuevo.codigoHistorial + chr(random(25) + 65);
 
-            AddPaciente(arrPacientes, pacienteNuevo, RUTAHISTORIALPACIENTES);
+            AddPaciente(arrPacientes, pacienteNuevo, RUTA_HISTORIAL_PACIENTES);
           end;
         end;
         3..6: begin
@@ -114,7 +95,7 @@ begin
                       Write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
                       readln(codigo);
                       MostrarHistorialClinico(codigo,
-                        RUTAHISTORIALPACIENTES);
+                        RUTA_HISTORIAL_PACIENTES);
                     end;
                     2: begin
                       Write('Escriba el codigo del paciente en MAYUSCULAS (porfis) -> ');
@@ -123,7 +104,7 @@ begin
                       Write('Escriba el texto que quiere aniadir al historial -> ');
                       readln(texto);
 
-                      EscribirHistorialClinico(codigo, texto, RUTAHISTORIALPACIENTES);
+                      EscribirHistorialClinico(codigo, texto, RUTA_HISTORIAL_PACIENTES);
 
                     end;
                     3: writeln('Volviendo al menu principal...');

@@ -2,37 +2,39 @@ unit UnidadClinica;
 
 interface
 
-uses Dos,SysUtils;
+uses SysUtils;
 
 const
-  MAX_ARRAY = 2000; // De 0 a 2000 -1 son 2000 en total
-  RUTAPACIENTES = '.\Archivos\tpacientes.txt';
-  RUTAHISTORIALPACIENTES = '.\Archivos\Pacientes';
+  MAX_ARRAY = 2; // Maximo de pacientes en total
+  RUTA_PACIENTES = '.\Archivos\tpacientes.txt';
+  RUTA_HISTORIAL_PACIENTES = '.\Archivos\Pacientes';
 
 type
 
   rIngreso = record
-    dia: integer;
-    mes: integer;
+    dia: byte;
+    mes: byte;
     anio: integer;
   end;
 
   rPaciente = record
-    nombre: string;
-    apellidos: string;
-    edad: integer; // se puede limitar
+    nombre: string[51];
+    apellidos: string[51];
+    edad: byte;
     sexo: char; // caracter h / m de hombre o mujer
     ingreso: rIngreso;
-    codigoHistorial: string; // 9 letras aleatorias
+    codigoHistorial: string[10]; // 9 letras aleatorias
     tieneSeguro: boolean;
-    totalFacturado: integer;
+    totalFacturado: integer; // esperemos que no sea tan grande
   end;
 
-  tArray = array[0..MAX_ARRAY - 1] of rPaciente; // max 2000 pacientes
+  tTopeArray = 0..MAX_ARRAY;
+
+  tArray = array[0..MAX_ARRAY-1] of rPaciente; // max 2000 pacientes
 
   tArrayPacientes = record
     pacientes: tArray;
-    tope: integer; // no lo limito
+    tope: tTopeArray;
   end;
 
 
@@ -44,7 +46,7 @@ procedure MostrarHistorialClinico(codigo: string; RUTAHISTORIALPACIENTES: string
 procedure EscribirHistorialClinico(codigo, texto: string;
   RUTAHISTORIALPACIENTES: string);
 
-procedure CargarDatos(var arrPacientes: tArrayPacientes; VAR ficheroPacientes:text);
+procedure CargarDatos(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
 // punto 1
 procedure AddPaciente(var arrPacientes: tArrayPacientes; pacienteNuevo: rPaciente;
   RUTAHISTORIALPACIENTES: string);
@@ -53,8 +55,9 @@ procedure MostrarPacientes(var arrPacientes: tArrayPacientes); // punto 3
 procedure MostrarPacientesSeguro(var arrPacientes: tArrayPacientes); // punto 4
 procedure BuscarPacienteCodigo(var arrPacientes: tArrayPacientes;
   codigo: string); // punto 5
-function MostrarTotalFacturado(var arrPacientes: tArrayPacientes):integer; // punto 6
-procedure Guardar(var arrPacientes: tArrayPacientes; VAR ficheroPacientes:text); // punto 7
+function MostrarTotalFacturado(var arrPacientes: tArrayPacientes): integer; // punto 6
+procedure Guardar(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
+// punto 7
 
 // pongo VAR en cada array porque pueden llegar a ser bastante grandes y asi no se copia todo el array ( eficiente con la memoria )
 
@@ -138,7 +141,7 @@ begin
 
 end;
 
-procedure CargarDatos(var arrPacientes: tArrayPacientes; VAR ficheroPacientes:text);
+procedure CargarDatos(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
 // punto 1
 var
   i: integer;
@@ -158,7 +161,7 @@ begin
   begin
     i := 0;
 
-    while (i < 2000) and (not EOF(ficheroPacientes)) do
+    while (i < MAX_ARRAY) and (not EOF(ficheroPacientes)) do
     begin
       Readln(ficheroPacientes, texto);
 
@@ -206,7 +209,7 @@ begin
 
     end;
 
-    if (i = 2000) and not EOF(ficheroPacientes) then
+    if (i = MAX_ARRAY) and not EOF(ficheroPacientes) then
       writeln('Se ha alcanzado el tope del array, el resto de datos no se han cargado!');
 
     Close(ficheroPacientes);
@@ -243,12 +246,6 @@ begin
 
   arrPacientes.tope := arrPacientes.tope + 1;
 
-  if (not DirectoryExists('.\Archivos')) then
-    mkdir('.\Archivos');
-
-  if (not DirectoryExists('.\Archivos\Pacientes')) then
-    mkdir('.\Archivos\Pacientes');
-
   Assign(fichero, RUTAHISTORIALPACIENTES + '\' + pacienteNuevo.codigoHistorial + '.txt');
 
   {$I-}
@@ -268,7 +265,6 @@ begin
     for j := 0 to arrPacientes.tope - 2 - i do
     begin
 
-
       if (arrPacientes.pacientes[j].nombre > arrPacientes.pacientes[j +
         1].nombre) or ((arrPacientes.pacientes[j].nombre =
         arrPacientes.pacientes[j + 1].nombre) and
@@ -280,7 +276,7 @@ begin
 
     end;
 
-    writeln('Paciente creado exitosamente!');
+  writeln('Paciente creado exitosamente!');
 
 end;
 
@@ -454,7 +450,7 @@ begin
 end;
 
 
-function MostrarTotalFacturado(var arrPacientes: tArrayPacientes):integer; // punto 6
+function MostrarTotalFacturado(var arrPacientes: tArrayPacientes): integer; // punto 6
 var
   i, facturadoPaciente: integer;
 begin
@@ -469,7 +465,8 @@ begin
 
 end;
 
-procedure Guardar(var arrPacientes: tArrayPacientes; VAR ficheroPacientes:text); // punto 7
+procedure Guardar(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
+// punto 7
 var
   i: integer;
 begin
@@ -501,8 +498,6 @@ begin
 end;
 
 end.
-
-
 {
  Gato
 

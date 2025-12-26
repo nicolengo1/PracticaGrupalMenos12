@@ -10,8 +10,7 @@ var
   arrPacientes: tArrayPacientes;
   resp: string;
   i: integer;
-  codigo: string;
-  texto: string;
+  codigo: string[10];
   ficheroPacientes: Text;
 
 

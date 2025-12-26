@@ -5,13 +5,12 @@ uses
   SysUtils;
 
 var
-  opcion, subopcion: integer;
+  opcion: byte;
   pacienteNuevo: rPaciente;
   arrPacientes: tArrayPacientes;
   resp: string;
   i: integer;
   codigo: string;
-  texto: string;
   ficheroPacientes: Text;
 
 

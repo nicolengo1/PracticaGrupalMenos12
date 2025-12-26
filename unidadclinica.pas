@@ -82,7 +82,7 @@ end;
 procedure Submenu(); // para el punto 3
 var
   subopcion:byte;
-  codigo:string;
+  codigo:string[10];
   texto: string;
 begin
   repeat
@@ -120,9 +120,10 @@ begin
 
     writeln();
   until subopcion = 3;
+
 end;
 
-procedure MostrarHistorialClinico(codigo, RUTAHISTORIALPACIENTES: string);
+procedure MostrarHistorialClinico(codigo:string[10]; RUTAHISTORIALPACIENTES: string);
 var
   fichero: Text;
   texto: string;
@@ -152,7 +153,7 @@ begin
 
 end;
 
-procedure EscribirHistorialClinico(codigo, texto: string;
+procedure EscribirHistorialClinico(codigo:string[10]; texto: string;
   RUTAHISTORIALPACIENTES: string);
 var
   fichero: Text;
@@ -487,7 +488,6 @@ begin
   end;
 
 end;
-
 
 function MostrarTotalFacturado(var arrPacientes: tArrayPacientes): integer; // punto 6
 var

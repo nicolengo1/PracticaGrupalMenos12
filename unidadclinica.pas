@@ -42,20 +42,24 @@ procedure Menu();
 procedure Submenu();
 
 procedure MostrarHistorialClinico(codigo: string; RUTAHISTORIALPACIENTES: string);
-
 procedure EscribirHistorialClinico(codigo, texto: string;
   RUTAHISTORIALPACIENTES: string);
+
 
 procedure CargarDatos(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
 // punto 1
 procedure AddPaciente(var arrPacientes: tArrayPacientes; pacienteNuevo: rPaciente;
   RUTAHISTORIALPACIENTES: string);
 // punto 2
-procedure MostrarPacientes(var arrPacientes: tArrayPacientes); // punto 3
-procedure MostrarPacientesSeguro(var arrPacientes: tArrayPacientes); // punto 4
+procedure MostrarPacientes(var arrPacientes: tArrayPacientes);
+// punto 3
+procedure MostrarPacientesSeguro(var arrPacientes: tArrayPacientes);
+// punto 4
 procedure BuscarPacienteCodigo(var arrPacientes: tArrayPacientes;
-  codigo: string); // punto 5
-function MostrarTotalFacturado(var arrPacientes: tArrayPacientes): integer; // punto 6
+  codigo: string);
+// punto 5
+function MostrarTotalFacturado(var arrPacientes: tArrayPacientes): integer;
+// punto 6
 procedure Guardar(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
 // punto 7
 

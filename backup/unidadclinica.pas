@@ -5,7 +5,7 @@ interface
 uses SysUtils;
 
 const
-  MAX_ARRAY = 2; // Maximo de pacientes en total
+  MAX_ARRAY = 2000; // Maximo de pacientes en total
   RUTA_PACIENTES = '.\Archivos\tpacientes.txt';
   RUTA_HISTORIAL_PACIENTES = '.\Archivos\Pacientes';
 
@@ -42,9 +42,9 @@ procedure Menu();
 procedure Submenu();
 
 procedure MostrarHistorialClinico(codigo: string; RUTAHISTORIALPACIENTES: string);
-
 procedure EscribirHistorialClinico(codigo, texto: string;
   RUTAHISTORIALPACIENTES: string);
+
 
 procedure CargarDatos(var arrPacientes: tArrayPacientes; var ficheroPacientes: Text);
 // punto 1
